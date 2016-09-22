@@ -1,9 +1,8 @@
 #!./python_modules/Scripts/python
 
-import subprocess
-import threading
+import sys
+import subprocess, threading, psutil
 import time
-import psutil
 import json
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
@@ -135,7 +134,7 @@ def monitor(command, name):
     thread.start()
     return _join
 
-def monitor_or_watch(command, name):
+def start_job(name, command):
     if isinstance(command, str):
         return monitor(command, name)
     if isinstance(command, dict):
@@ -150,18 +149,23 @@ def wait(secs):
     print("Waiting {}s".format(secs))
     time.sleep(5)
 
-def main(configName=None):
-    configName = configName or "./watchconfig.json"
-    print("Loading config from '{}'".format(configName))
-    with open(configName) as configFile:
-        configData = json.load(configFile)
+def main(argv):
+    configName = "./watchconfig.json"
+    if len(argv) > 1: 
+        configName = argv[1] 
 
-    processes = [(command, name) for (name, command) in configData.items()]
     finalizers = []
 
     def start_all():
+        print("Loading config from '{}'".format(configName))
         nonlocal finalizers
-        finalizers = [monitor_or_watch(*process) for process in processes]
+        try:
+            with open(configName) as configFile:
+                processes = list(json.load(configFile).items())
+        except FileNotFoundError:
+            print("Config file '{}' could not be found".format(configName))
+            processes = []
+        finalizers = [start_job(*process) for process in processes]
 
     def stop_all():
         nonlocal finalizers
@@ -190,4 +194,4 @@ def main(configName=None):
    
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
