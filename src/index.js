@@ -10,4 +10,7 @@ require("Mazigeen");
 
 var canvas = document.getElementById("canvas");
 
-global.mazigeen.App().run(canvas);
+console.log("before");
+debugger;
+global.mazigeen.App().run();
+console.log("after");
