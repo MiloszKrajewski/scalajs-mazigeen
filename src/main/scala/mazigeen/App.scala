@@ -7,6 +7,15 @@ import scala.scalajs.js.annotation.JSExport
 
 case class Point(x: Int, y: Int)
 
+class XN() extends Node[XN, XE] {
+    override def edges: Seq[XE] = Seq.empty
+}
+class XE extends Edge[XN, XE] {
+    override def A: XN = ???
+    override def B: XN = ???
+    override def weight: Double = 0.0
+}
+
 object UI {
     val WORLD_SIZE = Point(10, 10)
     val ROOM_SIZE = 10
