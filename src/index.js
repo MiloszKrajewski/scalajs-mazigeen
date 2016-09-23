@@ -8,7 +8,5 @@ require("./css/style.styl");
 
 require("Mazigeen");
 
-var canvas = document.getElementById("canvas");
-
 global.jQuery = require("jquery");
 global.mazigeen.App().run();

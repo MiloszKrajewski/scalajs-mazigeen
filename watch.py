@@ -77,8 +77,8 @@ def watch(folder, include, exclude, command, name):
             while not stop.is_set():
                 stop.wait(1)
                 if _test():
-                    execute(command, name)
                     state.last_action = time.clock()
+                    execute(command, name)
             if name is not None:
                 print("Unwatching '{}'".format(name))
             observer.stop()

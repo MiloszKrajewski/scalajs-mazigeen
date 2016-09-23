@@ -3,18 +3,10 @@ package mazigeen
 import org.scalajs.dom
 import org.scalajs.jquery.jQuery
 
+import scala.collection.mutable
 import scala.scalajs.js.annotation.JSExport
 
 case class Point(x: Int, y: Int)
-
-class XN() extends Node[XN, XE] {
-    override def edges: Seq[XE] = Seq.empty
-}
-class XE extends Edge[XN, XE] {
-    override def A: XN = ???
-    override def B: XN = ???
-    override def weight: Double = 0.0
-}
 
 object UI {
     val WORLD_SIZE = Point(10, 10)
@@ -23,11 +15,12 @@ object UI {
     var handle: Option[Int] = None
 
     def toPixel(v: Int): Int = v * ROOM_SIZE + (v + 1) * DOOR_SIZE
+
     def toPixel(p: Point): Point = Point(toPixel(p.x), toPixel(p.y))
 
     def restart() = {
         handle.foreach(dom.window.clearInterval)
-        handle = Some(dom.window.setInterval(() => step(), 1000/60))
+        handle = Some(dom.window.setInterval(() => step(), 1000 / 60))
     }
 
     def step(): Unit = {
