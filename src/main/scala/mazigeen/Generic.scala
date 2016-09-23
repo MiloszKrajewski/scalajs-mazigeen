@@ -19,17 +19,15 @@ class Prim[N <: Node[E], E <: Edge[N]](val node: N) {
 
     visit(node)
 
-    private def visit(node: N) = {
-        visited.add(node)
-        queue.enqueue(node.edges:_*)
-    }
+    private def test(node: N) = visited.contains(node)
+    private def mark(node: N) = visited.add(node)
+    private def dequeue(): Option[E] = if (queue.isEmpty) None else Some(queue.dequeue())
+    private def fanout(node: N) = queue.enqueue(node.edges: _*)
+    private def visit(node: N) = { mark(node); fanout(node) }
 
     def next(): Option[E] = {
-        if (queue.isEmpty) {
-            None
-        } else {
-            val edge = queue.dequeue()
-            (visited.contains(edge.A), visited.contains(edge.B)) match {
+        dequeue().flatMap { edge =>
+            (test(edge.A), test(edge.B)) match {
                 case (true, true) => next()
                 case (false, true) => visit(edge.A); Some(edge)
                 case (true, false) => visit(edge.B); Some(edge)

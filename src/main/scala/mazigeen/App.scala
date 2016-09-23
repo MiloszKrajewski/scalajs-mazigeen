@@ -1,16 +1,15 @@
 package mazigeen
 
-import org.scalajs.dom
+import org.scalajs.dom.{window, document, CanvasRenderingContext2D}
+import org.scalajs.dom.html.Canvas
 import org.scalajs.jquery.jQuery
 
-import scala.collection.mutable
 import scala.scalajs.js.annotation.JSExport
-
-case class Point(x: Int, y: Int)
+import scala.util.Random
 
 object UI {
-    val WORLD_SIZE = Point(10, 10)
-    val ROOM_SIZE = 10
+    val WORLD_SIZE = Point(100, 100)
+    val ROOM_SIZE = 5
     val DOOR_SIZE = 2
     var handle: Option[Int] = None
 
@@ -18,16 +17,36 @@ object UI {
 
     def toPixel(p: Point): Point = Point(toPixel(p.x), toPixel(p.y))
 
-    def restart() = {
-        handle.foreach(dom.window.clearInterval)
-        handle = Some(dom.window.setInterval(() => step(), 1000 / 60))
+    def shutdown() = {
+        handle.foreach(window.clearInterval)
+        handle = None
     }
 
-    def step(): Unit = {
-        println("step")
+    def restart(context: CanvasRenderingContext2D) = {
+        shutdown()
+
+        val model = new Model(WORLD_SIZE, Random.nextDouble)
+        val algorithm = new Prim[Room, Exit](model.room00)
+
+        handle = Some(window.setInterval(() => step(algorithm, context), 0))
     }
 
-    def initialize(): Unit = {
+    def step(algorithm: Prim[Room, Exit], context: CanvasRenderingContext2D) = {
+        algorithm.next() match {
+            case None => shutdown()
+            case Some(exit) =>
+                val A = toPixel(exit.A.position)
+                val B = toPixel(exit.B.position)
+                context.beginPath()
+                context.moveTo(A.x, A.y)
+                context.lineTo(B.x, B.y)
+                context.closePath()
+                context.strokeStyle = "#fff"
+                context.stroke()
+        }
+    }
+
+    def initialize() = {
         val size = toPixel(WORLD_SIZE)
         val (width, height) = (size.x, size.y)
         val view = s"0 0 $width $height"
@@ -36,14 +55,16 @@ object UI {
                 .attr("width", width).attr("height", height)
                 .attr("viewbox", view).attr("viewport", view)
 
-        jQuery("#restart").click((e: Any) => restart())
+        val context =
+            document.getElementById("canvas").asInstanceOf[Canvas]
+                    .getContext("2d").asInstanceOf[CanvasRenderingContext2D]
+
+        jQuery("#restart").click((e: Any) => restart(context))
     }
 }
 
 @JSExport
 object App {
     @JSExport
-    def run(): Unit = {
-        UI.initialize()
-    }
+    def run() = UI.initialize()
 }
