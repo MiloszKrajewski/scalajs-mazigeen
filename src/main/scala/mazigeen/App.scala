@@ -10,7 +10,7 @@ import scala.util.Random
 object UI {
     val WORLD_SIZE = Point(100, 100)
     val ROOM_SIZE = 6
-    val DOOR_SIZE = 2
+    val DOOR_SIZE = 1
 
     val ROOM_COLOR = "#fff"
     val DOOR_COLOR = "#eee"
@@ -29,26 +29,26 @@ object UI {
     def restart(context: CanvasRenderingContext2D, width: Int, height: Int) = {
         shutdown()
 
-        val model = new Model(WORLD_SIZE, Random.nextDouble)
-        val algorithm = new Prim[Room, Exit](model.room00)
-
         context.clearRect(0, 0, width, height)
-        context.fillStyle = ROOM_COLOR
-        context.strokeStyle = DOOR_COLOR
-        context.lineWidth = ROOM_SIZE * 0.9
+
+        val model = new Model(WORLD_SIZE, Random.nextDouble)
+        val algorithm = new Prim[Room, Door](model.room00)
 
         handle = Some(window.setInterval(() => step(algorithm, context), 0))
     }
 
     def drawRoom(context: CanvasRenderingContext2D, room: Room) = {
         val p = toPixel(room.position)
+        context.fillStyle = ROOM_COLOR
         context.fillRect(p.x, p.y, ROOM_SIZE, ROOM_SIZE)
     }
 
-    def drawExit(context: CanvasRenderingContext2D, exit: Exit) = {
-        val a = toPixel(exit.A.position)
-        val b = toPixel(exit.B.position)
+    def drawDoor(context: CanvasRenderingContext2D, door: Door) = {
+        val a = toPixel(door.A.position)
+        val b = toPixel(door.B.position)
         val o = ROOM_SIZE / 2
+        context.strokeStyle = DOOR_COLOR
+        context.lineWidth = ROOM_SIZE
         context.beginPath()
         context.moveTo(a.x + o, a.y + o)
         context.lineTo(b.x + o, b.y + o)
@@ -56,13 +56,13 @@ object UI {
         context.stroke()
     }
 
-    def step(algorithm: Prim[Room, Exit], context: CanvasRenderingContext2D) = {
+    def step(algorithm: Prim[Room, Door], context: CanvasRenderingContext2D) = {
         algorithm.next() match {
             case None => shutdown()
-            case Some(exit) => 
-                drawExit(context, exit)
-                drawRoom(context, exit.A)
-                drawRoom(context, exit.B)
+            case Some(door) => 
+                drawDoor(context, door)
+                drawRoom(context, door.A)
+                drawRoom(context, door.B)
         }
     }
 

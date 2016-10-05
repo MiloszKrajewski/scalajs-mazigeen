@@ -4,17 +4,17 @@ import scala.collection.{mutable => c}
 
 case class Point(x: Int, y: Int)
 
-class Room(val position: Point) extends Node[Exit] {
-    val edges = c.ArrayBuffer.empty[Exit]
+class Room(val position: Point) extends Node[Door] {
+    val edges = c.ArrayBuffer.empty[Door]
 
     def add(other: Room, weight: Double) = {
-        val exit = new Exit(this, other, weight)
-        edges += exit
-        other.edges += exit
+        val door = new Door(this, other, weight)
+        edges += door
+        other.edges += door
     }
 }
 
-class Exit(val A: Room, val B: Room, val weight: Double) extends Edge[Room]
+class Door(val A: Room, val B: Room, val weight: Double) extends Edge[Room]
 
 class Model(size: Point, random: () => Double) {
     private val rooms = Array.tabulate(size.x, size.y) { (x, y) => new Room(Point(x, y)) }
