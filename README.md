@@ -1,6 +1,7 @@
 # Maze generation using Prim's algorithm with ScalaJS
 
 Read about it: http://red-green-rewrite.github.io/2016/09/26/Maze-generator-again-but-this-time-with-Scala-js/
+
 Online demo: http://red-green-rewrite.github.io/scalajs-mazigeen/index.html
 
 Initialize:
